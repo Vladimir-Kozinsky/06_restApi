@@ -83,13 +83,13 @@ router.post('/login',
         }
     })
 
- //  /api/users
+//  /api/users
 router.get('/users', async (req, res) => {
     try {
         const usersArr = await User.find()
         const items = usersArr.map(item => {
             return {
-                id: 18000,
+                id: item._id,
                 name: item.profileInfo.fullName,
                 status: item.profileInfo.status,
                 photos: {
@@ -111,15 +111,24 @@ router.get('/users', async (req, res) => {
 
 //  /api/logout
 
-router.delete('/logout', async (req, res) => {
+router.post('/logout', async (req, res) => {
     try {
-        const id = "6129fbd8ec114ea2874f92ca"
-        await User.findByIdAndUpdate(id, { isAuth: false })
+        console.log(req.body)
+        const { userId } = req.body
+        await User.findByIdAndUpdate(userId, { isAuth: false })
+        res.json({
+            resultCode: 0,
+            messages: [],
+            data: {
+                id: null,
+                email: null,
+                login: null,
+                token: null
+            },
+        })
     } catch (error) {
-        res.status(500).json(error) 
+        res.status(500).json(error)
     }
 })
-
-
 
 module.exports = router
