@@ -5,6 +5,7 @@ const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken')
 const config = require('config')
 const router = Router()
+const fileMiddleware = require('./../middleware/file.js')
 
 
 //  /api/register
@@ -44,7 +45,6 @@ router.post('/login',
     ],
     async (req, res) => {
         try {
-            console.log(req.body)
             const errors = validationResult(req)
             if (!errors.isEmpty) {
                 return res.status(400).json({
@@ -87,6 +87,9 @@ router.post('/login',
 router.get('/users', async (req, res) => {
     try {
         const usersArr = await User.find()
+        let count = 0
+        count = usersArr.map(item => { return count += 1 })
+        const totalUsers = count.length
         const items = usersArr.map(item => {
             return {
                 id: item._id,
@@ -101,7 +104,7 @@ router.get('/users', async (req, res) => {
         })
         res.status(200).json({
             items,
-            totalCount: 4,
+            totalCount: totalUsers,
             error: ""
         })
     } catch (e) {
@@ -110,11 +113,10 @@ router.get('/users', async (req, res) => {
 })
 
 //  /api/logout
-
 router.post('/logout', async (req, res) => {
     try {
-        console.log(req.body)
-        const { userId } = req.body
+        // console.log(req.body)
+        const { userId } = req.params
         await User.findByIdAndUpdate(userId, { isAuth: false })
         res.json({
             resultCode: 0,
@@ -128,6 +130,128 @@ router.post('/logout', async (req, res) => {
         })
     } catch (error) {
         res.status(500).json(error)
+    }
+})
+
+router.get('/auth/me', async (req, res) => {
+    try {
+        // console.log(req.query)
+        const { userId } = req.query
+        const user = await User.findById(userId)
+        const token = jwt.sign(
+            { userId: user.id },
+            config.get('jwtSecret'),
+            { expiresIn: '1h' }
+        )
+        res.json({
+            resultCode: 0,
+            messages: [],
+            data: {
+                id: user.id,
+                email: user.email,
+                login: user.login,
+                token
+            }
+        })
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+router.get('/profile', async (req, res) => {
+    try {
+        //console.log(req.params)
+        const { userId } = req.query
+        const user = await User.findById(userId)
+        const token = jwt.sign(
+            { userId: user.id },
+            config.get('jwtSecret'),
+            { expiresIn: '1h' }
+        )
+        res.json({
+            status: " this my status",
+            aboutMe: "я круто чувак",
+            contacts: {
+                skype: "skyp",
+                vk: "vk.com",
+                facebook: "facebook",
+                icq: "icq",
+                email: "email",
+                googlePlus: "gogep",
+                twitter: "twitter",
+                instagram: "instagra",
+                whatsApp: "watsap"
+            },
+            photos: {
+                small: "url small photo",
+                large: "url large photo"
+            },
+            lookingForAJob: true,
+            lookingForAJobDescription: 'Ищу работу, знаю это это и это',
+            fullName: "samurai dmitry",
+            userId: 2
+        })
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+router.get('/profile/status', async (req, res) => {
+    try {
+        const { userId } = req.query
+        console.log("status" + userId)
+        const user = await User.findById(userId)
+        const token = jwt.sign(
+            { userId: user.id },
+            config.get('jwtSecret'),
+            { expiresIn: '1h' }
+        )
+        res.json(" this my status")
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+router.get('/profile/photo', async (req, res) => {
+    try {
+
+        const { userId } = req.query
+        // console.log("photo" + userId)
+        const user = await User.findById(userId)
+        const token = jwt.sign(
+            { userId: user.id },
+            config.get('jwtSecret'),
+            { expiresIn: '1h' }
+        )
+        res.json({
+            photos: {
+                small: " this my status",
+                large: "url large photo"
+            }
+
+        })
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
+
+router.post('/profile/photo', fileMiddleware.single('avatar'), async (req, res) => {
+    try {
+        console.log(req.file)
+        if (req.file) {
+            res.json({
+                resultCode: 1,
+                messages: ['Something wrong'],
+                data: {
+                    small: req.file.path,
+                    large: req.file.path
+                }
+            })
+        }
+    } catch (error) {
+        console.log(error)
+
     }
 })
 
