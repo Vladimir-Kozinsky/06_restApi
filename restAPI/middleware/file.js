@@ -1,21 +1,45 @@
 const multer = require('multer')
+const { GridFsStorage } = require('multer-gridfs-storage')
+const config = require('config')
 
-const storage = multer.diskStorage({
-    destination(req, file, cb) {
-        cb(null, 'images/')
+const storage = new GridFsStorage({
+    url: config.get('mongoUri'),
+    options: {
+        useNewUrlParsel: true,
+        useUnifiedTopology: true
     },
-    filename(req, file, cb) {
-        cb(null, new Date().toISOString().replace(/:/g, '-'))
+    file: (req, file) => {
+        const match = ['image/png', 'image/jpeg', 'image/jpg']
+        if (match.indexOf(file.mimetype) === -1) {
+            const filename = new Date().toISOString().replace(/:/g, '-') + "-" + file.originalname
+            return filename
+        }
+        return {
+            bucketName: "photos",
+            filename: new Date().toISOString().replace(/:/g, '-') + "-" + file.originalname
+        }
     }
+
 })
 
-const types = ['image/png', 'image/jpeg', 'image/jpg']
-const fileFilter = (req, file, cb) => {
-    if (types.includes(file.mimetype)) {
-        cb(null, true)
-    } else {
-        cb(null, false)
-    }
-}
+module.exports = multer({ storage })
 
-module.exports = multer({ storage, fileFilter })
+// const storage = multer.diskStorage({
+//     destination(req, file, cb) {
+//         cb(null, 'images/')
+//     },
+//     filename(req, file, cb) {
+//         cb(null, new Date().toISOString().replace(/:/g, '-') + "-" + file.originalname)
+//     }
+// })
+
+// const types = ['image/png', 'image/jpeg', 'image/jpg']
+// const fileFilter = (req, file, cb) => {
+//     if (types.includes(file.mimetype)) {
+//         cb(null, true)
+//     } else {
+//         cb(null, false)
+//     }
+// }
+
+// module.exports = multer({ storage, fileFilter })

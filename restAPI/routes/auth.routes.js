@@ -236,23 +236,36 @@ router.get('/profile/photo', async (req, res) => {
 })
 
 
-router.post('/profile/photo', fileMiddleware.single('avatar'), async (req, res) => {
-    try {
-        console.log(req.file)
-        if (req.file) {
-            res.json({
-                resultCode: 1,
-                messages: ['Something wrong'],
-                data: {
-                    small: req.file.path,
-                    large: req.file.path
-                }
-            })
-        }
-    } catch (error) {
-        console.log(error)
+router.post('/profile/photo', fileMiddleware.single('file'), async (req, res) => {
+    if (req.file === undefined) return res.send("you must select a file");
+    const imgUrl = `http://localhost:5000/file/${req.file.filename}`
+    return res.send(imgUrl);
 
-    }
+
+
+
+
+
+
+
+
+
+    // try {
+    //     console.log(req.file)
+    //     if (req.file) {
+    //         res.json({
+    //             resultCode: 1,
+    //             messages: ['Something wrong'],
+    //             data: {
+    //                 small: `http://localhost:5000/api/${req.file.path}`,
+    //                 large: `http://localhost:5000/api/${req.file.path}`
+    //             }
+    //         })
+    //     }
+    // } catch (error) {
+    //     console.log(error)
+
+    // }
 })
 
 module.exports = router
