@@ -3,7 +3,8 @@ const { GridFsStorage } = require('multer-gridfs-storage')
 const config = require('config')
 
 const storage = new GridFsStorage({
-    url: config.get('mongoUri'),
+    url: 'http://localhost:5000/file/',
+    //url: config.get('mongoUri'),
     options: {
         useNewUrlParsel: true,
         useUnifiedTopology: true

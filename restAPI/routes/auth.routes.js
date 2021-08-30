@@ -5,7 +5,7 @@ const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken')
 const config = require('config')
 const router = Router()
-const fileMiddleware = require('./../middleware/file.js')
+const storage = require('./../middleware/file.js')
 
 
 //  /api/register
@@ -236,7 +236,7 @@ router.get('/profile/photo', async (req, res) => {
 })
 
 
-router.post('/profile/photo', fileMiddleware.single('file'), async (req, res) => {
+router.post('/profile/photo', storage.single('avatar'), async (req, res) => {
     if (req.file === undefined) return res.send("you must select a file");
     const imgUrl = `http://localhost:5000/file/${req.file.filename}`
     return res.send(imgUrl);

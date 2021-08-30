@@ -35,28 +35,18 @@ async function start() {
             useUnifiedTopology: true,
         };
         const conn = await mongoose.connect(config.get('mongoUri'), {})
-        // setting of gridfs-stream
         console.log('Connected to DataBase')
-        // conn.once('open', function () {
-        //     let gfs = Grid(conn.db, mongoose.mongo);
-        //     gfs.collection('images')
-        //     // all set!
-        // })
-
-
-
         app.listen(PORT, () => console.log(`SERWER WAS STARTED ON ... ${PORT}`))
     } catch (error) {
         console.log("Server Error", error.message)
         console.log("Not connected to Data base ")
         process.exit(1)
-
     }
 }
 let gfs;
 start()
 
-const conn = mongoose.connection;
+const conn = mongoose.start;
 conn.once("open", function () {
     gfs = Grid(conn.db, mongoose.mongo);
     gfs.collection("photos");
